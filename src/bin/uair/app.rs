@@ -10,8 +10,8 @@ use std::collections::HashSet;
 use std::fs::{self, File};
 use std::io::{self, Error as IoError, ErrorKind, Write};
 use std::sync::OnceLock;
-use std::thread;
 use std::time::{self, Duration, Instant};
+use std::{env, thread};
 use sysinfo::{Process, ProcessExt, System, SystemExt};
 use uair::{Command, FetchArgs, JumpArgs, ListenArgs, PauseArgs, ResumeArgs};
 
@@ -26,7 +26,9 @@ pub fn run_proc_killer() -> Result<(), Error> {
     let secs = time::Duration::from_secs(10);
     let mut sys = System::new_all();
 
-    let list = vec!["electron", "bilibili", "telegram-deskto"];
+    let env_list = env::var("PROC_KILL_LIST").unwrap_or_default();
+    let list = env_list.split(',').collect::<Vec<_>>();
+
     loop {
         thread::sleep(secs);
         match unsafe { PROC_KILLER_RUNNING.get_or_init(|| false) } {
@@ -44,12 +46,12 @@ pub fn run_proc_killer() -> Result<(), Error> {
                     .collect::<HashSet<String>>();
                 if name_set.len() != 0 {
                     let _ = std::process::Command::new("notify-send")
-                        .arg(format!("Kill Processes: '{:?}'", name_set))
+                        .arg(format!("Kill Processes: {:?}", name_set))
                         .output()
                         .expect("命令执行异常错误提示");
                 }
             }
-            false => println!("idle"),
+            false => {}
         };
     }
 }
