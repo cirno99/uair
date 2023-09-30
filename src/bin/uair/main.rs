@@ -1,5 +1,6 @@
 mod app;
 mod config;
+mod proc_killer;
 mod session;
 mod socket;
 mod timer;
