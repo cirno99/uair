@@ -25,9 +25,9 @@ pub fn run_proc_killer() -> Result<(), Error> {
                     .filter(|proc: &&Process| list.iter().any(|name| name.eq(&proc.name())))
                     .map(|proc| {
                         proc.kill();
-                        proc.name().to_string()
+                        proc.name()
                     })
-                    .collect::<HashSet<String>>();
+                    .collect::<HashSet<&str>>();
                 if name_set.len() != 0 {
                     let _ = std::process::Command::new("notify-send")
                         .arg(format!("Kill Processes: {:?}", name_set))
